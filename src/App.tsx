@@ -1,24 +1,32 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { Suspense, useEffect } from "react";
+import "./App.css";
+import BreedTable from "./components/BreedTable";
+import AppLoader from "./components/Loader";
+import { Button, Header } from "semantic-ui-react";
+import { useDispatch, useSelector } from "react-redux";
+import { breedsFetchStarted } from "./redux/breedSlice";
 
 function App() {
+  const dispatch = useDispatch();
+
+  // @ts-ignore
+  const appState = useSelector((state) => state.breeds);
+
+  useEffect(() => {
+    dispatch(breedsFetchStarted());
+  }, []);
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <Header as="h2">All Breeds</Header>
+
+      {appState.status === "loading" ? (
+        <AppLoader />
+      ) : (
+        <Suspense fallback={<AppLoader />}>
+          <BreedTable />
+        </Suspense>
+      )}
     </div>
   );
 }
